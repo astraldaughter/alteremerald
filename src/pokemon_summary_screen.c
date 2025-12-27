@@ -334,6 +334,7 @@ static u8 AddWindowFromTemplateList(const struct WindowTemplate *template, u8 te
 static u8 IncrementSkillsStatsMode(u8 mode);
 static void ClearStatLabel(u32 length, u32 statsCoordX, u32 statsCoordY);
 u32 GetAdjustedIvData(struct Pokemon *mon, u32 stat);
+static void FormatTextByWidth(u8*, s32, u8, const u8*, s16);
 
 static const struct BgTemplate sBgTemplates[] =
 {
@@ -498,7 +499,7 @@ static const struct WindowTemplate sSummaryTemplate[] =
     [PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_LEFT] = {
         .bg = 0,
         .tilemapLeft = 10,
-        .tilemapTop = 7,
+        .tilemapTop = 12,
         .width = 6,
         .height = 6,
         .paletteNum = 6,
@@ -506,8 +507,8 @@ static const struct WindowTemplate sSummaryTemplate[] =
     },
     [PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_RIGHT] = {
         .bg = 0,
-        .tilemapLeft = 22,
-        .tilemapTop = 7,
+        .tilemapLeft = 21,
+        .tilemapTop = 12,
         .width = 5,
         .height = 6,
         .paletteNum = 6,
@@ -516,9 +517,9 @@ static const struct WindowTemplate sSummaryTemplate[] =
     [PSS_LABEL_WINDOW_POKEMON_SKILLS_EXP] = {
         .bg = 0,
         .tilemapLeft = 10,
-        .tilemapTop = 14,
+        .tilemapTop = 17,
         .width = 11,
-        .height = 4,
+        .height = 2,
         .paletteNum = 6,
         .baseBlock = 275,
     },
@@ -609,21 +610,21 @@ static const struct WindowTemplate sPageInfoTemplate[] =
     },
     [PSS_DATA_WINDOW_INFO_ABILITY] = {
         .bg = 0,
-        .tilemapLeft = 11,
+        .tilemapLeft = 10,
         .tilemapTop = 9,
-        .width = 18,
-        .height = 4,
+        .width = 20,
+        .height = 7,
         .paletteNum = 6,
         .baseBlock = 503,
     },
     [PSS_DATA_WINDOW_INFO_MEMO] = {
         .bg = 0,
         .tilemapLeft = 11,
-        .tilemapTop = 14,
+        .tilemapTop = 17,
         .width = 18,
-        .height = 6,
+        .height = 3,
         .paletteNum = 6,
-        .baseBlock = 575,
+        .baseBlock = 643,
     },
 };
 static const struct WindowTemplate sPageSkillsTemplate[] =
@@ -639,39 +640,39 @@ static const struct WindowTemplate sPageSkillsTemplate[] =
     },
     [PSS_DATA_WINDOW_SKILLS_RIBBON_COUNT] = {
         .bg = 0,
-        .tilemapLeft = 20,
-        .tilemapTop = 4,
-        .width = 10,
-        .height = 2,
+        .tilemapLeft = 10,
+        .tilemapTop = 6,
+        .width = 20,
+        .height = 5,
         .paletteNum = 6,
         .baseBlock = 487,
     },
     [PSS_DATA_WINDOW_SKILLS_STATS_LEFT] = {
         .bg = 0,
         .tilemapLeft = 16,
-        .tilemapTop = 7,
-        .width = 6,
-        .height = 6,
+        .tilemapTop = 12,
+        .width = 5,
+        .height = 5,
         .paletteNum = 6,
-        .baseBlock = 507,
+        .baseBlock = 587,
     },
     [PSS_DATA_WINDOW_SKILLS_STATS_RIGHT] = {
         .bg = 0,
         .tilemapLeft = 27,
-        .tilemapTop = 7,
+        .tilemapTop = 12,
         .width = 3,
-        .height = 6,
+        .height = 5,
         .paletteNum = 6,
-        .baseBlock = 543,
+        .baseBlock = 612,
     },
     [PSS_DATA_WINDOW_EXP] = {
         .bg = 0,
         .tilemapLeft = 24,
-        .tilemapTop = 14,
+        .tilemapTop = 17,
         .width = 6,
         .height = 4,
         .paletteNum = 6,
-        .baseBlock = 561,
+        .baseBlock = 627,
     },
 };
 static const struct WindowTemplate sPageMovesTemplate[] = // This is used for both battle and contest moves
@@ -697,9 +698,9 @@ static const struct WindowTemplate sPageMovesTemplate[] = // This is used for bo
     [PSS_DATA_WINDOW_MOVE_DESCRIPTION] = {
         .bg = 0,
         .tilemapLeft = 10,
-        .tilemapTop = 15,
+        .tilemapTop = 14,
         .width = 20,
-        .height = 4,
+        .height = 6,
         .paletteNum = 6,
         .baseBlock = 617,
     },
@@ -3167,7 +3168,7 @@ static void DrawExperienceProgressBar(struct Pokemon *unused)
         numExpProgressBarTicks = 0;
     }
 
-    dst = &sMonSummaryScreen->bgTilemapBuffers[PSS_PAGE_SKILLS][1][0x255];
+    dst = &sMonSummaryScreen->bgTilemapBuffers[PSS_PAGE_SKILLS][1][0x275];
     for (i = 0; i < 8; i++)
     {
         if (numExpProgressBarTicks > 7)
@@ -3367,20 +3368,19 @@ static void PrintPageNamesAndStats(void)
 
     PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_INFO_RENTAL, gText_RentalPkmn, 0, 1, 0, 1);
     PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_INFO_TYPE, gText_TypeSlash, 0, 1, 0, 0);
-    statsXPos = 6 + GetStringCenterAlignXOffset(FONT_NORMAL, gText_HP4, 42);
-    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_LEFT, gText_HP4, statsXPos, 1, 0, 1);
-    statsXPos = 6 + GetStringCenterAlignXOffset(FONT_NORMAL, gText_Attack3, 42);
-    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_LEFT, gText_Attack3, statsXPos, 17, 0, 1);
-    statsXPos = 6 + GetStringCenterAlignXOffset(FONT_NORMAL, gText_Defense3, 42);
-    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_LEFT, gText_Defense3, statsXPos, 33, 0, 1);
-    statsXPos = 2 + GetStringCenterAlignXOffset(FONT_NORMAL, gText_SpAtk4, 36);
-    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_RIGHT, gText_SpAtk4, statsXPos, 1, 0, 1);
-    statsXPos = 2 + GetStringCenterAlignXOffset(FONT_NORMAL, gText_SpDef4, 36);
-    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_RIGHT, gText_SpDef4, statsXPos, 17, 0, 1);
-    statsXPos = 2 + GetStringCenterAlignXOffset(FONT_NORMAL, gText_Speed2, 36);
-    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_RIGHT, gText_Speed2, statsXPos, 33, 0, 1);
-    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_EXP, gText_ExpPoints, 6, 1, 0, 1);
-    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_EXP, gText_NextLv, 6, 17, 0, 1);
+    statsXPos = 2 + GetStringCenterAlignXOffset(FONT_SMALL, gText_HP4, 42);
+    PrintTextOnWindowWithFont(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_LEFT, gText_HP4, statsXPos, 1, 0, 1, FONT_SMALL);
+    statsXPos = 2 + GetStringCenterAlignXOffset(FONT_SMALL, gText_Attack3, 42);
+    PrintTextOnWindowWithFont(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_LEFT, gText_Attack3, statsXPos, 13, 0, 1, FONT_SMALL);
+    statsXPos = 2 + GetStringCenterAlignXOffset(FONT_SMALL, gText_Defense3, 42);
+    PrintTextOnWindowWithFont(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_LEFT, gText_Defense3, statsXPos, 25, 0, 1, FONT_SMALL);
+    statsXPos = 2 + GetStringCenterAlignXOffset(FONT_SMALL, gText_SpAtk4, 36);
+    PrintTextOnWindowWithFont(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_RIGHT, gText_SpAtk4, statsXPos, 1, 0, 1, FONT_SMALL);
+    statsXPos = 2 + GetStringCenterAlignXOffset(FONT_SMALL, gText_SpDef4, 36);
+    PrintTextOnWindowWithFont(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_RIGHT, gText_SpDef4, statsXPos, 13, 0, 1, FONT_SMALL);
+    statsXPos = 2 + GetStringCenterAlignXOffset(FONT_SMALL, gText_Speed2, 36);
+    PrintTextOnWindowWithFont(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATS_RIGHT, gText_Speed2, statsXPos, 25, 0, 1, FONT_SMALL);
+    PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_EXP, gText_NextLv, 6, 1, 0, 1);
     PrintTextOnWindow(PSS_LABEL_WINDOW_POKEMON_SKILLS_STATUS, gText_Status, 2, 1, 0, 1);
     PrintTextOnWindow(PSS_LABEL_WINDOW_MOVES_POWER_ACC, gText_Power, 0, 1, 0, 1);
     PrintTextOnWindow(PSS_LABEL_WINDOW_MOVES_POWER_ACC, gText_Accuracy2, 0, 17, 0, 1);
@@ -3624,13 +3624,16 @@ static void PrintMonOTID(void)
 static void PrintMonAbilityName(void)
 {
     enum Ability ability = GetAbilityBySpecies(sMonSummaryScreen->summary.species, sMonSummaryScreen->summary.abilityNum);
-    PrintTextOnWindow(AddWindowFromTemplateList(sPageInfoTemplate, PSS_DATA_WINDOW_INFO_ABILITY), gAbilitiesInfo[ability].name, 0, 1, 0, 1);
+    PrintTextOnWindow(AddWindowFromTemplateList(sPageInfoTemplate, PSS_DATA_WINDOW_INFO_ABILITY), gAbilitiesInfo[ability].name, 8, 1, 0, 1);
 }
 
 static void PrintMonAbilityDescription(void)
 {
+    u8 desc[400];
     enum Ability ability = GetAbilityBySpecies(sMonSummaryScreen->summary.species, sMonSummaryScreen->summary.abilityNum);
-    PrintTextOnWindow(AddWindowFromTemplateList(sPageInfoTemplate, PSS_DATA_WINDOW_INFO_ABILITY), gAbilitiesInfo[ability].description, 0, 17, 0, 0);
+
+    FormatTextByWidth(desc, 150, FONT_SMALL, gAbilitiesInfo[ability].description, GetFontAttribute(FONT_SMALL, FONTATTR_LETTER_SPACING));
+    PrintTextOnWindowWithFont(AddWindowFromTemplateList(sPageInfoTemplate, PSS_DATA_WINDOW_INFO_ABILITY), desc, 8, 14, -3, 0, FONT_SMALL);
 }
 
 static void BufferMonTrainerMemo(void)
@@ -3687,7 +3690,7 @@ static void BufferMonTrainerMemo(void)
 
 static void PrintMonTrainerMemo(void)
 {
-    PrintTextOnWindow(AddWindowFromTemplateList(sPageInfoTemplate, PSS_DATA_WINDOW_INFO_MEMO), gStringVar4, 0, 1, 0, 0);
+    PrintTextOnWindowWithFont(AddWindowFromTemplateList(sPageInfoTemplate, PSS_DATA_WINDOW_INFO_MEMO), gStringVar4, 0, 0, -2, 0, FONT_SMALL);
 }
 
 static void BufferNatureString(void)
@@ -3872,7 +3875,6 @@ static void PrintHeldItemName(void)
 {
     const u8 *text;
     u32 fontId;
-    int x;
 
     if (sMonSummaryScreen->summary.item == ITEM_ENIGMA_BERRY_E_READER
         && IsMultiBattle() == TRUE
@@ -3891,28 +3893,38 @@ static void PrintHeldItemName(void)
     }
 
     fontId = GetFontIdToFit(text, FONT_NORMAL, 0, WindowTemplateWidthPx(&sPageSkillsTemplate[PSS_DATA_WINDOW_SKILLS_HELD_ITEM]) - 8);
-    x = GetStringCenterAlignXOffset(fontId, text, 72) + 6;
-    PrintTextOnWindowWithFont(AddWindowFromTemplateList(sPageSkillsTemplate, PSS_DATA_WINDOW_SKILLS_HELD_ITEM), text, x, 1, 0, 0, fontId);
+    PrintTextOnWindowWithFont(AddWindowFromTemplateList(sPageSkillsTemplate, PSS_DATA_WINDOW_SKILLS_HELD_ITEM), text, 8, 1, 0, 0, fontId);
 }
 
 static void PrintRibbonCount(void)
 {
-    const u8 *text;
-    int x;
+    u8 desc[500];
 
-    if (sMonSummaryScreen->summary.ribbonCount == 0)
+    if (sMonSummaryScreen->summary.item == ITEM_NONE)
     {
-        text = gText_None;
+        FormatTextByWidth(desc, 150, FONT_SMALL, gText_PkmnNotHoldingSummary, GetFontAttribute(FONT_SMALL, FONTATTR_LETTER_SPACING));
     }
     else
     {
-        ConvertIntToDecimalStringN(gStringVar1, sMonSummaryScreen->summary.ribbonCount, STR_CONV_MODE_RIGHT_ALIGN, 2);
-        StringExpandPlaceholders(gStringVar4, gText_RibbonsVar1);
-        text = gStringVar4;
+        FormatTextByWidth(desc, 150, FONT_SMALL, GetItemDescription(sMonSummaryScreen->summary.item), GetFontAttribute(FONT_SMALL, FONTATTR_LETTER_SPACING));
     }
-
-    x = GetStringCenterAlignXOffset(FONT_NORMAL, text, 70) + 6;
-    PrintTextOnWindow(AddWindowFromTemplateList(sPageSkillsTemplate, PSS_DATA_WINDOW_SKILLS_RIBBON_COUNT), text, x, 1, 0, 0);
+    PrintTextOnWindowWithFont(AddWindowFromTemplateList(sPageSkillsTemplate, PSS_DATA_WINDOW_SKILLS_RIBBON_COUNT), desc, 8, 0, -3, 0, FONT_SMALL);
+//    const u8 *text;
+//    int x;
+//
+//    if (sMonSummaryScreen->summary.ribbonCount == 0)
+//    {
+//        text = gText_None;
+//   }
+//    else
+//    {
+//        ConvertIntToDecimalStringN(gStringVar1, sMonSummaryScreen->summary.ribbonCount, STR_CONV_MODE_RIGHT_ALIGN, 2);
+//       StringExpandPlaceholders(gStringVar4, gText_RibbonsVar1);
+//        text = gStringVar4;
+//   }
+//
+//   x = GetStringCenterAlignXOffset(FONT_NORMAL, text, 70) + 6;
+//    PrintTextOnWindow(AddWindowFromTemplateList(sPageSkillsTemplate, PSS_DATA_WINDOW_SKILLS_RIBBON_COUNT), text, x, 1, 0, 0);
 }
 
 static void BufferStat(u8 *dst, enum Stat statIndex, u32 stat, u32 strId, u32 n)
@@ -4013,7 +4025,7 @@ static void PrintLeftColumnStats(void)
     else
         x = 4;
 
-    PrintTextOnWindow(AddWindowFromTemplateList(sPageSkillsTemplate, PSS_DATA_WINDOW_SKILLS_STATS_LEFT), gStringVar4, x, 1, 0, 0);
+    PrintTextOnWindowWithFont(AddWindowFromTemplateList(sPageSkillsTemplate, PSS_DATA_WINDOW_SKILLS_STATS_LEFT), gStringVar4, x, 1, 0, 0, FONT_SMALL);
 }
 
 static void BufferRightColumnStats(void)
@@ -4036,7 +4048,7 @@ static void PrintRightColumnStats(void)
     else
         x = 2;
 
-    PrintTextOnWindow(AddWindowFromTemplateList(sPageSkillsTemplate, PSS_DATA_WINDOW_SKILLS_STATS_RIGHT), gStringVar4, x, 1, 0, 0);
+    PrintTextOnWindowWithFont(AddWindowFromTemplateList(sPageSkillsTemplate, PSS_DATA_WINDOW_SKILLS_STATS_RIGHT), gStringVar4, x, 1, 0, 0, FONT_SMALL);
 }
 
 static void PrintExpPointsNextLevel(void)
@@ -4048,7 +4060,7 @@ static void PrintExpPointsNextLevel(void)
 
     ConvertIntToDecimalStringN(gStringVar1, sum->exp, STR_CONV_MODE_RIGHT_ALIGN, 7);
     x = GetStringRightAlignXOffset(FONT_NORMAL, gStringVar1, 42) + 2;
-    PrintTextOnWindow(windowId, gStringVar1, x, 1, 0, 0);
+//    PrintTextOnWindow(windowId, gStringVar1, x, 1, 0, 0);
 
     if (sum->level < MAX_LEVEL)
         expToNextLevel = gExperienceTables[gSpeciesInfo[sum->species].growthRate][sum->level + 1] - sum->exp;
@@ -4057,7 +4069,7 @@ static void PrintExpPointsNextLevel(void)
 
     ConvertIntToDecimalStringN(gStringVar1, expToNextLevel, STR_CONV_MODE_RIGHT_ALIGN, 6);
     x = GetStringRightAlignXOffset(FONT_NORMAL, gStringVar1, 42) + 2;
-    PrintTextOnWindow(windowId, gStringVar1, x, 17, 0, 0);
+    PrintTextOnWindow(windowId, gStringVar1, x, 1, 0, 0);
 }
 
 static void PrintBattleMoves(void)
@@ -4265,6 +4277,8 @@ static void PrintContestMoveDescription(u8 moveSlot)
 static void PrintMoveDetails(u16 move)
 {
     u8 windowId = AddWindowFromTemplateList(sPageMovesTemplate, PSS_DATA_WINDOW_MOVE_DESCRIPTION);
+    u8 desc[500];
+
     FillWindowPixelBuffer(windowId, PIXEL_FILL(0));
     if (move != MOVE_NONE)
     {
@@ -4273,7 +4287,8 @@ static void PrintMoveDetails(u16 move)
             if (B_SHOW_CATEGORY_ICON == TRUE)
                 ShowCategoryIcon(GetBattleMoveCategory(move));
             PrintMovePowerAndAccuracy(move);
-            PrintTextOnWindow(windowId, GetMoveDescription(move), 6, 1, 0, 0);
+            FormatTextByWidth(desc, 150, FONT_SMALL, GetMoveDescription(move), GetFontAttribute(FONT_SMALL, FONTATTR_LETTER_SPACING));
+            PrintTextOnWindowWithFont(windowId, desc, 6, 7, -3, 0, FONT_SMALL);
         }
         else
         {
@@ -4826,6 +4841,53 @@ static inline bool32 ShouldShowRename(void)
          && !InBattleFactory()
          && !InSlateportBattleTent()
          && GetPlayerIDAsU32() == sMonSummaryScreen->summary.OTID);
+}
+
+// swiped from RavePossum's BW Summary Screen branch
+// Shoutout to Vexx for this :)
+static void FormatTextByWidth(u8 *result, s32 maxWidth, u8 fontId, const u8 *str, s16 letterSpacing)
+{
+    u8 *end, *ptr, *curLine, *lastSpace;
+
+    end = result;
+    // copy string, replacing all space and line breaks with EOS
+    while (*str != EOS)
+    {
+        if (*str == CHAR_SPACE || *str == CHAR_NEWLINE)
+            *end = EOS;
+        else
+            *end = *str;
+
+        end++;
+        str++;
+    }
+    *end = EOS; // now end points to the true end of the string
+
+    ptr = result;
+    curLine = ptr;
+
+    while (*ptr != EOS)
+        ptr++;
+    // now ptr is the first EOS char
+
+    while (ptr != end)
+    {
+        // all the EOS chars (except *end) must be replaced by either ' ' or '\n'
+        lastSpace = ptr++; // this points at the EOS
+
+        // check that adding the next word this line still fits
+        *lastSpace = CHAR_SPACE;
+        if (GetStringWidth(fontId, curLine, letterSpacing) > maxWidth)
+        {
+            *lastSpace = CHAR_NEWLINE;
+
+            curLine = ptr;
+        }
+
+        while (*ptr != EOS)
+            ptr++;
+        // now ptr is the next EOS char
+    }
 }
 
 static inline bool32 ShouldShowIvEvPrompt(void)
