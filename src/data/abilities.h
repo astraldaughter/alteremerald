@@ -560,7 +560,7 @@ const struct AbilityInfo gAbilitiesInfo[ABILITIES_COUNT] =
     [ABILITY_PURE_POWER] =
     {
         .name = _("Pure Power"),
-        .description = COMPOUND_STRING("Using its pure power, the Pokémon doubles its Attack stat. "),
+        .description = COMPOUND_STRING("The Pokémon channels its power when attacking, doubling its Attack if it didn't take damage that turn."),
         .aiRating = 10,
     },
 
