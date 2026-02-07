@@ -2979,6 +2979,10 @@ static void SetNonVolatileStatus(u32 effectBattler, enum MoveEffect effect, cons
         gBattleMons[effectBattler].status1 |= STATUS1_FROSTBITE;
         gBattlescriptCurrInstr = BattleScript_MoveEffectFrostbite;
         break;
+    case MOVE_EFFECT_PANIC:
+        gBattleMons[effectBattler].status1 |= STATUS1_PANIC;
+        gBattlescriptCurrInstr = BattleScript_MoveEffectPanic;
+        break;
     default:
         break;
     }
