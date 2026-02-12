@@ -1166,6 +1166,10 @@ static bool32 AI_IsMoveEffectInPlus(u32 battlerAtk, u32 battlerDef, u32 move, s3
                     if (AI_CanParalyze(battlerAtk, battlerDef, abilityDef, move, MOVE_NONE))
                         return TRUE;
                     break;
+                case MOVE_EFFECT_PANIC:
+                    if (AI_CanPanic(battlerAtk, battlerDef, abilityDef, BATTLE_PARTNER(battlerAtk), move, MOVE_NONE))
+                        return TRUE;
+                    break;
                 case MOVE_EFFECT_CONFUSION:
                     if (AI_CanConfuse(battlerAtk, battlerDef, abilityDef, BATTLE_PARTNER(battlerAtk), move, MOVE_NONE))
                         return TRUE;
@@ -3589,6 +3593,24 @@ bool32 ShouldBurn(u32 battlerAtk, u32 battlerDef, enum Ability abilityDef)
         return TRUE;
 }
 
+bool32 ShouldPanic(u32 battlerAtk, u32 battlerDef, enum Ability abilityDef)
+{
+    // Battler can be burned and has move/ability that synergizes with being burned
+    if (CanGetPanicked(battlerAtk, battlerDef, abilityDef) && (
+        DoesBattlerBenefitFromAllVolatileStatus(battlerDef, abilityDef)))
+    {
+        if (battlerAtk == battlerDef) // Targeting self
+            return TRUE;
+        else
+            return FALSE;
+    }
+
+    if (battlerAtk == battlerDef)
+        return FALSE;
+    else
+        return TRUE;
+}
+
 bool32 ShouldFreezeOrFrostbite(u32 battlerAtk, u32 battlerDef, enum Ability abilityDef)
 {
     if (!B_USE_FROSTBITE)
@@ -3687,6 +3709,18 @@ bool32 AI_CanConfuse(u32 battlerAtk, u32 battlerDef, enum Ability defAbility, u3
 bool32 AI_CanBurn(u32 battlerAtk, u32 battlerDef, enum Ability defAbility, u32 battlerAtkPartner, u32 move, u32 partnerMove)
 {
     if (!CanBeBurned(battlerAtk, battlerDef, defAbility)
+      || gAiLogicData->effectiveness[battlerAtk][battlerDef][gAiThinkingStruct->movesetIndex] == UQ_4_12(0.0)
+      || DoesSubstituteBlockMove(battlerAtk, battlerDef, move)
+      || PartnerMoveEffectIsStatusSameTarget(battlerAtkPartner, battlerDef, partnerMove))
+    {
+        return FALSE;
+    }
+    return TRUE;
+}
+
+bool32 AI_CanPanic(u32 battlerAtk, u32 battlerDef, enum Ability defAbility, u32 battlerAtkPartner, u32 move, u32 partnerMove)
+{
+    if (!CanGetPanicked(battlerAtk, battlerDef, defAbility)
       || gAiLogicData->effectiveness[battlerAtk][battlerDef][gAiThinkingStruct->movesetIndex] == UQ_4_12(0.0)
       || DoesSubstituteBlockMove(battlerAtk, battlerDef, move)
       || PartnerMoveEffectIsStatusSameTarget(battlerAtkPartner, battlerDef, partnerMove))
@@ -4992,6 +5026,30 @@ void IncreaseBurnScore(u32 battlerAtk, u32 battlerDef, u32 move, s32 *score)
                 && GetSpeciesBaseAttack(gBattleMons[battlerDef].species) >= GetSpeciesBaseSpAttack(gBattleMons[battlerDef].species) + 10))
         {
             if (GetMoveCategory(GetBestDmgMoveFromBattler(battlerDef, battlerAtk, AI_DEFENDING)) == DAMAGE_CATEGORY_PHYSICAL)
+                ADJUST_SCORE_PTR(DECENT_EFFECT);
+            else
+                ADJUST_SCORE_PTR(WEAK_EFFECT);
+        }
+
+        if (IsPowerBasedOnStatus(battlerAtk, EFFECT_DOUBLE_POWER_ON_ARG_STATUS, STATUS1_BURN)
+          || IsPowerBasedOnStatus(BATTLE_PARTNER(battlerAtk), EFFECT_DOUBLE_POWER_ON_ARG_STATUS, STATUS1_BURN))
+            ADJUST_SCORE_PTR(WEAK_EFFECT);
+    }
+}
+
+void IncreasePanicScore(u32 battlerAtk, u32 battlerDef, u32 move, s32 *score)
+{
+    if (((gAiThinkingStruct->aiFlags[battlerAtk] & AI_FLAG_TRY_TO_FAINT) && CanAIFaintTarget(battlerAtk, battlerDef, 0))
+            || gAiLogicData->holdEffects[battlerDef] == HOLD_EFFECT_CURE_BRN || gAiLogicData->holdEffects[battlerDef] == HOLD_EFFECT_CURE_STATUS)
+        return;
+
+    if (AI_CanPanic(battlerAtk, battlerDef, gAiLogicData->abilities[battlerDef], BATTLE_PARTNER(battlerAtk), move, gAiLogicData->partnerMove))
+    {
+        if (HasMoveWithCategory(battlerDef, DAMAGE_CATEGORY_SPECIAL)
+            || (!(gAiThinkingStruct->aiFlags[battlerAtk] & AI_FLAG_OMNISCIENT) // Not Omniscient but expects special attacker
+                && GetSpeciesBaseAttack(gBattleMons[battlerDef].species) >= GetSpeciesBaseSpAttack(gBattleMons[battlerDef].species) + 10))
+        {
+            if (GetMoveCategory(GetBestDmgMoveFromBattler(battlerDef, battlerAtk, AI_DEFENDING)) == DAMAGE_CATEGORY_SPECIAL)
                 ADJUST_SCORE_PTR(DECENT_EFFECT);
             else
                 ADJUST_SCORE_PTR(WEAK_EFFECT);

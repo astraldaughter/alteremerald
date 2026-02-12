@@ -2095,6 +2095,8 @@ static s32 AI_CheckBadMove(u32 battlerAtk, u32 battlerDef, u32 move, s32 score)
                 ADJUST_SCORE(-10);
             else if (gBattleMons[battlerAtk].status1 & STATUS1_SLEEP && !AI_CanPutToSleep(battlerAtk, battlerDef, aiData->abilities[battlerDef], move, aiData->partnerMove))
                 ADJUST_SCORE(-10);
+            else if (gBattleMons[battlerAtk].status1 & STATUS1_PANIC && !AI_CanPanic(battlerAtk, battlerDef, aiData->abilities[battlerDef], BATTLE_PARTNER(battlerAtk), move, aiData->partnerMove))
+                ADJUST_SCORE(-10);
             else
                 ADJUST_SCORE(-10);    // attacker has no status to transmit
             break;
@@ -2979,6 +2981,12 @@ static s32 AI_CheckBadMove(u32 battlerAtk, u32 battlerDef, u32 move, s32 score)
         if (!AI_CanBurn(battlerAtk, battlerDef, aiData->abilities[battlerDef], BATTLE_PARTNER(battlerAtk), move, aiData->partnerMove))
             ADJUST_SCORE(-10);
         if (!ShouldBurn(battlerAtk, battlerDef, aiData->abilities[battlerDef]))
+            ADJUST_SCORE(-5);
+        break;
+    case MOVE_EFFECT_PANIC:
+        if (!AI_CanPanic(battlerAtk, battlerDef, aiData->abilities[battlerDef], BATTLE_PARTNER(battlerAtk), move, aiData->partnerMove))
+            ADJUST_SCORE(-10);
+        if (!ShouldPanic(battlerAtk, battlerDef, aiData->abilities[battlerDef]))
             ADJUST_SCORE(-5);
         break;
     }
@@ -4096,11 +4104,12 @@ static s32 AI_CalcMoveEffectScore(u32 battlerAtk, u32 battlerDef, u32 move, stru
     if (gBattleMons[battlerAtk].status1 & STATUS1_ICY_ANY && MoveThawsUser(move))
         ADJUST_SCORE(10);
 
-    // check burn / frostbite
+    // check burn / frostbite / panic
     if (gAiThinkingStruct->aiFlags[battlerAtk] & AI_FLAG_SMART_SWITCHING && aiData->abilities[battlerAtk] == ABILITY_NATURAL_CURE)
     {
         if ((gBattleMons[battlerAtk].status1 & STATUS1_BURN && HasOnlyMovesWithCategory(battlerAtk, DAMAGE_CATEGORY_PHYSICAL, TRUE))
-        || (gBattleMons[battlerAtk].status1 & STATUS1_FROSTBITE && HasOnlyMovesWithCategory(battlerAtk, DAMAGE_CATEGORY_SPECIAL, TRUE)))
+        || (gBattleMons[battlerAtk].status1 & STATUS1_FROSTBITE && HasOnlyMovesWithCategory(battlerAtk, DAMAGE_CATEGORY_SPECIAL, TRUE))
+        || (gBattleMons[battlerAtk].status1 & STATUS1_PANIC && HasOnlyMovesWithCategory(battlerAtk, DAMAGE_CATEGORY_SPECIAL, TRUE)))
             ADJUST_SCORE(-20); // Force switch if all your attacking moves are physical and you have Natural Cure.
     }
 
@@ -4123,6 +4132,9 @@ static s32 AI_CalcMoveEffectScore(u32 battlerAtk, u32 battlerDef, u32 move, stru
         break;
     case MOVE_EFFECT_BURN:
         IncreaseBurnScore(battlerAtk, battlerDef, move, &score);
+        break;
+    case MOVE_EFFECT_PANIC:
+        IncreasePanicScore(battlerAtk, battlerDef, move, &score);
         break;
     }
     // move effect checks
@@ -5120,6 +5132,8 @@ static s32 AI_CalcMoveEffectScore(u32 battlerAtk, u32 battlerDef, u32 move, stru
             IncreaseSleepScore(battlerAtk, battlerDef, move, &score);
         else if (gBattleMons[battlerAtk].status1 & STATUS1_FROSTBITE)
             IncreaseFrostbiteScore(battlerAtk, battlerDef, move, &score);
+        else if (gBattleMons[battlerAtk].status1 & STATUS1_PANIC)
+            IncreasePanicScore(battlerAtk, battlerDef, move, &score);
         break;
     case EFFECT_GRUDGE:
         break;
