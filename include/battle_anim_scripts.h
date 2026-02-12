@@ -1017,5 +1017,9 @@ extern const u8 gBattleAnimSpecial_SubstituteToMon[];
 extern const u8 gBattleAnimSpecial_MonToSubstitute[];
 extern const u8 gBattleAnimSpecial_CriticalCaptureBallThrow[];
 
+// new moves
+extern const u8 gBattleAnimMove_Pester[];
+extern const u8 gBattleAnimMove_Echolocation[];
+extern const u8 gBattleAnimMove_Singe[];
 
 #endif // GUARD_BATTLE_ANIM_SCRIPTS_H

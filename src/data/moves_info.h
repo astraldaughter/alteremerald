@@ -22317,4 +22317,80 @@ const struct MoveInfo gMovesInfo[MOVES_COUNT_ALL] =
         .ignoresProtect = TRUE,
         .battleAnimScript = gBattleAnimMove_GMaxRapidFlow,
     },
+
+    [MOVE_PESTER] =
+    {
+        .name = COMPOUND_STRING("Pester"),
+        .description = COMPOUND_STRING(
+            "The user pesters the foe, breaking its focus and lowering its Sp. Atk."),
+        .effect = EFFECT_SPECIAL_ATTACK_DOWN,
+        .power = 0,
+        .type = TYPE_NORMAL,
+        .accuracy = 100,
+        .pp = 40,
+        .target = MOVE_TARGET_SELECTED,
+        .priority = 0,
+        .category = DAMAGE_CATEGORY_STATUS,
+        .magicCoatAffected = TRUE,
+        .battleAnimScript = gBattleAnimMove_Pester,
+    },
+
+    [MOVE_ECHOLOCATION] =
+    {
+        .name = COMPOUND_STRING("Echolocation"),
+        .description = COMPOUND_STRING(
+            "The user uses echolocation to scan its surroundings, raising accuracy."),
+        .effect = EFFECT_ACCURACY_UP,
+        .power = 0,
+        .type = TYPE_NORMAL,
+        .accuracy = 100,
+        .pp = 20,
+        .target = MOVE_TARGET_USER,
+        .priority = 0,
+        .category = DAMAGE_CATEGORY_STATUS,
+        .soundMove = TRUE,
+        .battleAnimScript = gBattleAnimMove_Echolocation,
+    },
+
+    [MOVE_SINGE] =
+    {
+        .name = COMPOUND_STRING("Singe"),
+        .description = COMPOUND_STRING(
+            "The target is exposed to just enough heat to singe it. High chance to burn."),
+        .effect = EFFECT_HIT,
+        .power = 25,
+        .type = TYPE_FIRE,
+        .accuracy = 100,
+        .pp = 15,
+        .target = MOVE_TARGET_SELECTED,
+        .priority = 0,
+        .category = DAMAGE_CATEGORY_SPECIAL,
+        .additionalEffects = ADDITIONAL_EFFECTS({
+            .moveEffect = MOVE_EFFECT_BURN,
+            .chance = 50,
+        }),
+        .battleAnimScript = gBattleAnimMove_Singe,
+    },
+
+    [MOVE_MUDSLIDE] =
+    {
+        .name = COMPOUND_STRING("Mudslide"),
+        .description = COMPOUND_STRING(
+            "Attacks the enemy with a viscous torrent of mud. May lower accuracy."),
+        .effect = EFFECT_HIT,
+        .power = 95,
+        .type = TYPE_GROUND,
+        .accuracy = 85,
+        .pp = 10,
+        .target = MOVE_TARGET_BOTH,
+        .priority = 0,
+        .category = DAMAGE_CATEGORY_SPECIAL,
+        .skyBattleBanned = TRUE,
+        .additionalEffects = ADDITIONAL_EFFECTS({
+            .moveEffect = MOVE_EFFECT_ACC_MINUS_1,
+            .chance = 30,
+        }),
+        .battleAnimScript = gBattleAnimMove_MuddyWater, // temp anim
+        .validApprenticeMove = TRUE,
+    },
 };

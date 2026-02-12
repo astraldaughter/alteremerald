@@ -14,6 +14,46 @@
 
 	.section script_data, "aw", %progbits
 
+gBattleAnimMove_Pester::
+	loadspritegfx ANIM_TAG_ANGER
+	createvisualtask AnimTask_RockMonBackAndForth, 5, ANIM_ATTACKER, 2, 1
+	loopsewithpan SE_M_TAIL_WHIP, SOUND_PAN_ATTACKER, 12, 4
+	waitforvisualfinish
+	createsprite gAngerMarkSpriteTemplate, ANIM_TARGET, 2, 1, -20, -28
+	playsewithpan SE_M_SWAGGER2, SOUND_PAN_TARGET
+	waitforvisualfinish
+	delay 12
+	createsprite gAngerMarkSpriteTemplate, ANIM_TARGET, 2, 1, 20, -28
+	playsewithpan SE_M_SWAGGER2, SOUND_PAN_TARGET
+	end
+
+gBattleAnimMove_Echolocation::
+	loadspritegfx ANIM_TAG_THIN_RING
+	createsprite gUproarRingSpriteTemplate, ANIM_ATTACKER, 3, 0, 0, 0, 0, RGB_RED, 8
+	playsewithpan SE_M_SCREECH, SOUND_PAN_ATTACKER
+	delay 8
+	createsprite gUproarRingSpriteTemplate, ANIM_ATTACKER, 3, 0, 0, 0, 0, RGB_RED, 8
+	playsewithpan SE_M_SCREECH, SOUND_PAN_ATTACKER
+	delay 8
+	createsprite gUproarRingSpriteTemplate, ANIM_ATTACKER, 3, 0, 0, 0, 0, RGB_RED, 8
+	playsewithpan SE_M_SCREECH, SOUND_PAN_ATTACKER
+	waitforvisualfinish
+	end
+
+gBattleAnimMove_Singe::
+	loadspritegfx ANIM_TAG_SMALL_EMBER
+	createvisualtask AnimTask_BlendBattleAnimPal, 10, F_PAL_TARGET, 0, 0, 12, RGB_RED
+	playsewithpan SE_M_FLAME_WHEEL, SOUND_PAN_TARGET
+	call EmberFireHit
+	call EmberFireHit
+	call EmberFireHit
+	call EmberFireHit
+	call EmberFireHit
+	waitforvisualfinish
+	createvisualtask AnimTask_BlendBattleAnimPal, 10, F_PAL_TARGET, 0, 12, 0, RGB_RED
+	waitforvisualfinish
+	end
+
 @@@@@@@@@@@@@@@@@@@@@@@ GEN 4 @@@@@@@@@@@@@@@@@@@@@@@
 gBattleAnimMove_Roost::
 	loadspritegfx ANIM_TAG_WHITE_FEATHER
