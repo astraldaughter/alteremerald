@@ -1621,7 +1621,8 @@ s32 CalcCritChanceStage(u32 battlerAtk, u32 battlerDef, u32 move, bool32 recordA
     }
     else if (gBattleMons[battlerAtk].volatiles.laserFocus
           || MoveAlwaysCrits(move)
-          || (abilityAtk == ABILITY_MERCILESS && gBattleMons[battlerDef].status1 & STATUS1_PSN_ANY))
+          || (abilityAtk == ABILITY_MERCILESS && gBattleMons[battlerDef].status1 & STATUS1_PSN_ANY)
+          || (GetMoveEffect(move) == EFFECT_NIGHT_SLASH && HasBattlerActedThisTurn(battlerDef)))
     {
         critChance = CRITICAL_HIT_ALWAYS;
     }

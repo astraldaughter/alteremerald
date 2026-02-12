@@ -348,13 +348,15 @@ static bool32 HandleEndTurnFirstEventBlock(u32 battler)
             else if (!gBattleMons[battler].volatiles.lockConfusionTurns && gBattleMons[battler].volatiles.multipleTurns)
             {
                 gBattleMons[battler].volatiles.multipleTurns = FALSE;
-                if (!gBattleMons[battler].volatiles.confusionTurns)
-                {
-                    SetMoveEffect(battler, battler, MOVE_EFFECT_CONFUSION, gBattlescriptCurrInstr, EFFECT_PRIMARY);
-                    if (gBattleMons[battler].volatiles.confusionTurns)
-                        BattleScriptExecute(BattleScript_ThrashConfuses);
-                    effect = TRUE;
-                }
+                BattleScriptExecute(BattleScript_ThrashConfuses);
+                effect = TRUE;
+//                if (!gBattleMons[battler].volatiles.confusionTurns)
+//                {
+//                    SetMoveEffect(battler, battler, MOVE_EFFECT_CONFUSION, gBattlescriptCurrInstr, EFFECT_PRIMARY);
+//                    if (gBattleMons[battler].volatiles.confusionTurns)
+//                        BattleScriptExecute(BattleScript_ThrashConfuses);
+//                    effect = TRUE;
+//                }
             }
         }
         gBattleStruct->eventState.endTurnBlock++;
